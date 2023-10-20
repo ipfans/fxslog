@@ -10,12 +10,13 @@ import (
 	"testing"
 	"time"
 
+	"log/slog"
+
 	"github.com/ipfans/fxslog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
-	"golang.org/x/exp/slog"
 )
 
 func TestFxLogger(t *testing.T) {
@@ -281,14 +282,14 @@ func TestFxLogger(t *testing.T) {
 
 			var buf bytes.Buffer
 			handler := slog.HandlerOptions{
-				ReplaceAttr: func(attr slog.Attr) slog.Attr {
+				ReplaceAttr: func(groups []string, attr slog.Attr) slog.Attr {
 					if attr.Key == slog.TimeKey || attr.Key == slog.LevelKey {
 						return slog.Attr{}
 					}
 					return attr
 				},
-			}.NewJSONHandler(&buf)
-			l := fxslog.New(slog.New(handler))
+			}
+			l := fxslog.New(slog.New(slog.NewJSONHandler(&buf, &handler)))
 
 			l.LogEvent(tt.give)
 
@@ -305,7 +306,7 @@ func TestFxLogger(t *testing.T) {
 func ExampleNew() {
 	app := fx.New(
 		fx.Provide(func() *slog.Logger {
-			return slog.New(slog.NewJSONHandler(os.Stdout))
+			return slog.New(slog.NewJSONHandler(os.Stdout, nil))
 		}),
 		fx.WithLogger(func(logger *slog.Logger) fxevent.Logger {
 			return fxslog.New(logger)
