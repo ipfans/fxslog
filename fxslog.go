@@ -3,8 +3,9 @@ package fxslog
 import (
 	"strings"
 
+	"log/slog"
+
 	"go.uber.org/fx/fxevent"
-	"golang.org/x/exp/slog"
 )
 
 // FxLogger is an Fx event logger that logs events to slog.
@@ -19,11 +20,11 @@ func New(logger *slog.Logger) *FxLogger {
 }
 
 func (l *FxLogger) logError(msg string, fields ...slog.Attr) {
-	l.Logger.LogAttrs(slog.ErrorLevel, msg, fields...)
+	l.Logger.LogAttrs(nil, slog.LevelError, msg, fields...)
 }
 
 func (l *FxLogger) logEvent(msg string, fields ...slog.Attr) {
-	l.Logger.LogAttrs(slog.InfoLevel, msg, fields...)
+	l.Logger.LogAttrs(nil, slog.LevelInfo, msg, fields...)
 }
 
 // LogEvent logs the given event to the provided Zap logger.
